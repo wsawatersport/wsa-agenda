@@ -1,0 +1,897 @@
+/* WSA Agenda – calendar stylesheet */
+:root {
+  --wsa-bg:          #ffffff;
+  --wsa-border:      #e0e0e0;
+  --wsa-text:        #1a1a1a;
+  --wsa-muted:       #6b7280;
+  --wsa-today-bg:    #eff6ff;
+  --wsa-today-ring:  #3b82f6;
+  --wsa-block-bg:    rgba(144,238,144,0.25);
+  --wsa-radius:      6px;
+  --wsa-chip-h:      22px;
+  --wsa-shadow:      0 4px 24px rgba(0,0,0,.14);
+}
+
+.wsa-calendar-root {
+  position: relative;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  color: var(--wsa-text);
+}
+
+/* ── Toolbar ─────────────────────────────────────────────────────── */
+.wsa-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.wsa-toolbar-nav { display: flex; align-items: center; gap: 4px; }
+.wsa-toolbar-nav .wsa-heading {
+  min-width: 180px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 16px;
+}
+.wsa-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 12px;
+  border: 1px solid var(--wsa-border);
+  border-radius: var(--wsa-radius);
+  background: var(--wsa-bg);
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1.4;
+  transition: background .15s;
+  white-space: nowrap;
+}
+.wsa-btn:hover { background: #f3f4f6; }
+.wsa-btn.active { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
+.wsa-btn-icon { padding: 5px 10px; font-size: 16px; }
+.wsa-toolbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.wsa-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+}
+/* .wsa-cat-filter removed (CR1 — no category filter bar) */
+.wsa-view-tabs { display: flex; gap: 4px; }
+
+/* ── Month view ──────────────────────────────────────────────────── */
+.wsa-month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-left: 1px solid var(--wsa-border);
+  border-top: 1px solid var(--wsa-border);
+}
+.wsa-month-dow {
+  padding: 6px 4px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--wsa-muted);
+  border-right: 1px solid var(--wsa-border);
+  border-bottom: 1px solid var(--wsa-border);
+  background: #f9fafb;
+}
+.wsa-day {
+  min-height: 90px;
+  border-right: 1px solid var(--wsa-border);
+  border-bottom: 1px solid var(--wsa-border);
+  padding: 4px;
+  position: relative;
+  overflow: hidden;
+}
+.wsa-day.other-month { background: #f9fafb; }
+.wsa-day.today { background: var(--wsa-today-bg); }
+.wsa-day.today .wsa-day-num {
+  background: var(--wsa-today-ring);
+  color: #fff;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.wsa-day-num { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+/* Board members get a pointer + subtle hover tint when clicking empty space to add an event */
+.wsa-day.wsa-day-clickable { cursor: pointer; }
+.wsa-day.wsa-day-clickable:hover { background: rgba(12,68,124,0.05); }
+.wsa-day.wsa-day-clickable.other-month:hover { background: rgba(12,68,124,0.04); }
+.wsa-day.wsa-day-clickable.today:hover { background: var(--wsa-today-bg); filter: brightness(0.96); }
+.wsa-public-block {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 100%;
+  background: var(--wsa-block-bg);
+  pointer-events: none;
+  z-index: 0;
+}
+.wsa-public-label {
+  font-size: 11px;
+  opacity: 0.6;
+  position: relative;
+  z-index: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Mobile public-block indicator: cell tint only, no overlay element or text */
+.wsa-day-pub-mobile { background: rgba(144,238,144,0.25); }
+.wsa-chip {
+  display: block;
+  height: var(--wsa-chip-h);
+  line-height: var(--wsa-chip-h);
+  border-radius: 3px;
+  padding: 0 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  margin-bottom: 2px;
+  position: relative;
+  z-index: 1;
+}
+.wsa-chip:hover { filter: brightness(1.12); }
+.wsa-more {
+  font-size: 11px;
+  color: var(--wsa-muted);
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+}
+.wsa-more:hover { text-decoration: underline; }
+
+/* ── Week view ───────────────────────────────────────────────────── */
+.wsa-week-grid {
+  display: grid;
+  grid-template-columns: 44px repeat(7, 1fr);
+  border-left: 1px solid var(--wsa-border);
+  border-top: 1px solid var(--wsa-border);
+  overflow-y: auto;
+  max-height: 72vh;
+}
+.wsa-week-header { position: sticky; top: 0; z-index: 2; background: #f9fafb; }
+.wsa-week-th {
+  padding: 6px 4px;
+  text-align: center;
+  border-right: 1px solid var(--wsa-border);
+  border-bottom: 1px solid var(--wsa-border);
+  font-size: 12px;
+  font-weight: 600;
+}
+.wsa-week-th.today-col { background: var(--wsa-today-bg); }
+.wsa-week-time {
+  font-size: 11px;
+  color: var(--wsa-muted);
+  text-align: right;
+  padding-right: 4px;
+  border-right: 1px solid var(--wsa-border);
+  border-bottom: 1px solid var(--wsa-border);
+  height: 40px;
+  line-height: 40px;
+}
+.wsa-week-cell {
+  border-right: 1px solid var(--wsa-border);
+  border-bottom: 1px solid var(--wsa-border);
+  height: 40px;
+  position: relative;
+}
+.wsa-week-cell.today-col { background: var(--wsa-today-bg); }
+.wsa-week-event {
+  position: absolute;
+  left: 2px; right: 2px;
+  border-radius: 3px;
+  padding: 2px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  overflow: hidden;
+  cursor: pointer;
+  z-index: 1;
+}
+.wsa-week-allday {
+  padding: 2px 4px;
+  font-size: 11px;
+  border-radius: 3px;
+  color: #fff;
+  margin: 1px 2px;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Public-block: tint entire day column (lower specificity than .today-col so today always wins) */
+.wsa-pub-col { background: var(--wsa-block-bg); }
+/* Small muted label shown inside the column header on public-block days */
+.wsa-week-pub-label {
+  font-size: 11px;
+  font-weight: 400;
+  opacity: 0.6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+  margin-top: 2px;
+}
+
+/* ── Year view ───────────────────────────────────────────────────── */
+.wsa-year-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+.wsa-mini-month { }
+.wsa-mini-month-title {
+  font-weight: 700;
+  font-size: 13px;
+  margin-bottom: 4px;
+  cursor: pointer;
+}
+.wsa-mini-month-title:hover { text-decoration: underline; }
+.wsa-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+}
+.wsa-mini-dow {
+  text-align: center;
+  font-size: 10px;
+  color: var(--wsa-muted);
+  font-weight: 600;
+  padding: 2px 0;
+}
+.wsa-mini-day {
+  text-align: center;
+  font-size: 11px;
+  padding: 2px 1px;
+  border-radius: 3px;
+  cursor: default;
+  position: relative;
+  min-height: 18px;
+}
+.wsa-mini-day.has-event { cursor: pointer; }
+.wsa-mini-day.today-mini {
+  background: var(--wsa-today-ring);
+  color: #fff;
+  border-radius: 50%;
+}
+.wsa-mini-day.has-block { background: var(--wsa-block-bg); }
+.wsa-dots {
+  display: flex;
+  gap: 2px;
+  justify-content: center;
+  position: absolute;
+  bottom: 1px;
+  left: 0; right: 0;
+}
+.wsa-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Modal ───────────────────────────────────────────────────────── */
+.wsa-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 60px;
+}
+.wsa-modal {
+  background: var(--wsa-bg);
+  border-radius: 8px;
+  box-shadow: var(--wsa-shadow);
+  width: 100%;
+  max-width: 560px;
+  max-height: 80vh;
+  overflow-y: auto;
+  outline: none;
+  position: relative;
+}
+.wsa-modal-header {
+  padding: 20px 20px 12px;
+  border-bottom: 1px solid var(--wsa-border);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.wsa-modal-title { font-size: 18px; font-weight: 700; margin: 0; flex: 1; }
+.wsa-modal-close {
+  background: none; border: none;
+  font-size: 20px; cursor: pointer;
+  color: var(--wsa-muted); line-height: 1;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+.wsa-modal-close:hover { color: var(--wsa-text); }
+.wsa-cat-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  margin-left: 8px;
+}
+.wsa-modal-body { padding: 16px 20px; }
+.wsa-modal-meta { font-size: 13px; color: var(--wsa-muted); margin-bottom: 12px; }
+.wsa-modal-desc { line-height: 1.6; margin-bottom: 12px; }
+.wsa-modal-section { margin-top: 16px; }
+.wsa-modal-section h4 { font-size: 13px; font-weight: 700; margin: 0 0 8px; text-transform: uppercase; letter-spacing: .04em; color: var(--wsa-muted); }
+.wsa-att-list { list-style: none; padding: 0; margin: 0; }
+.wsa-att-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 13px; }
+.wsa-att-thumb { width: 40px; height: 40px; object-fit: cover; border-radius: 3px; }
+.wsa-att-icon { font-size: 24px; line-height: 1; }
+.wsa-att-info { flex: 1; }
+.wsa-att-name { font-weight: 600; }
+.wsa-att-size { color: var(--wsa-muted); font-size: 12px; }
+
+/* RSVP */
+.wsa-rsvp-count { font-size: 13px; color: var(--wsa-muted); margin-bottom: 8px; }
+.wsa-rsvp-form { display: flex; flex-direction: column; gap: 8px; }
+.wsa-rsvp-form input {
+  padding: 7px 10px;
+  border: 1px solid var(--wsa-border);
+  border-radius: var(--wsa-radius);
+  font-size: 14px;
+}
+.wsa-rsvp-form input.error { border-color: #dc2626; }
+.wsa-field-error { color: #dc2626; font-size: 12px; margin-top: 2px; }
+.wsa-rsvp-done { background: #d1fae5; padding: 10px 12px; border-radius: var(--wsa-radius); font-size: 13px; font-weight: 600; }
+.wsa-rsvp-full { background: #fee2e2; padding: 10px 12px; border-radius: var(--wsa-radius); font-size: 13px; }
+.wsa-rsvp-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.wsa-rsvp-table th, .wsa-rsvp-table td { padding: 4px 8px; text-align: left; border-bottom: 1px solid var(--wsa-border); }
+
+/* Edit form */
+.wsa-edit-form { display: flex; flex-direction: column; gap: 12px; }
+.wsa-field label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+.wsa-field input[type=text],
+.wsa-field input[type=date],
+.wsa-field select,
+.wsa-field textarea {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--wsa-border);
+  border-radius: var(--wsa-radius);
+  font-size: 14px;
+  box-sizing: border-box;
+}
+.wsa-field textarea { resize: vertical; min-height: 80px; }
+.wsa-field-row { display: flex; gap: 12px; }
+.wsa-field-row .wsa-field { flex: 1; }
+.wsa-cat-swatch {
+  display: inline-block;
+  width: 12px; height: 12px;
+  border-radius: 2px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+/* Modal footer */
+.wsa-modal-footer {
+  padding: 12px 20px;
+  border-top: 1px solid var(--wsa-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+/* Right-side cluster: Aanmelden | Bewerken */
+.wsa-modal-footer-actions {
+  display: flex;
+  align-items: center;
+}
+.wsa-footer-link {
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  font-size: 13px;
+  color: var(--wsa-muted);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  line-height: 1.4;
+}
+.wsa-footer-link:hover { color: var(--wsa-text); }
+.wsa-footer-divider {
+  font-size: 13px;
+  color: var(--wsa-border);
+  user-select: none;
+  line-height: 1;
+  padding: 0 2px;
+}
+.wsa-btn-danger { background: #dc2626; color: #fff; border-color: #dc2626; }
+.wsa-btn-danger:hover { background: #b91c1c; }
+.wsa-btn-primary { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
+.wsa-btn-primary:hover { background: #1e40af; }
+.wsa-notice { padding: 8px 12px; border-radius: var(--wsa-radius); font-size: 13px; }
+.wsa-notice.success { background: #d1fae5; color: #065f46; }
+.wsa-notice.error   { background: #fee2e2; color: #991b1b; }
+
+/* Attachments uploader */
+.wsa-att-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.wsa-att-chip {
+  display: flex; align-items: center; gap: 4px;
+  background: #f3f4f6; border-radius: 4px;
+  padding: 2px 6px; font-size: 12px;
+}
+.wsa-att-chip button { background: none; border: none; cursor: pointer; color: var(--wsa-muted); font-size: 14px; line-height: 1; }
+
+/* ── In-modal login chooser ──────────────────────────────────────── */
+
+/* "Bestuur? Inloggen om te bewerken" — small muted link in modal footer */
+.wsa-board-login-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  color: var(--wsa-muted);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  margin-left: auto;     /* push to right side of footer flex row */
+}
+.wsa-board-login-link:hover { color: var(--wsa-text); }
+
+/* Chooser panel title */
+.wsa-login-chooser-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 20px;
+}
+
+/* Stacked login options */
+.wsa-login-chooser-opts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Back link in chooser header */
+.wsa-login-back {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  color: var(--wsa-muted);
+  cursor: pointer;
+  text-decoration: none;
+  flex: 1;
+  text-align: left;
+}
+.wsa-login-back:hover { color: var(--wsa-text); }
+
+/* SSO buttons inside the chooser */
+.wsa-login-sso-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: opacity .15s;
+  line-height: 1.4;
+  box-sizing: border-box;
+}
+.wsa-login-sso-btn:hover  { opacity: .88; }
+.wsa-login-sso-btn:active { opacity: .76; }
+.wsa-login-sso-btn svg    { flex-shrink: 0; }
+
+.wsa-login-sso-google {
+  background: #fff;
+  color: #3c4043;
+  border-color: #dadce0;
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+.wsa-login-sso-apple {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+/* WordPress button — same pill shape as Google/Apple, white background */
+.wsa-login-sso-wp {
+  background: #fff;
+  color: #1a1a1a;
+  border: 0.5px solid #ddd;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+
+/* SSO buttons on login page */
+.wsa-sso-buttons { margin: 12px 0; display: flex; flex-direction: column; gap: 8px; }
+.wsa-sso-btn {
+  display: flex; align-items: center; justify-content: center;
+  padding: 8px 16px; border-radius: 6px; text-decoration: none;
+  font-weight: 600; font-size: 14px; border: 1px solid var(--wsa-border);
+}
+.wsa-sso-google { background: #fff; color: #3c4043; }
+.wsa-sso-apple  { background: #000; color: #fff; border-color: #000; }
+
+/* ── Subscription panel ──────────────────────────────────────────── */
+
+/* Panel title: "Aanmelden voor updates — [title]" */
+.wsa-sub-panel-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 18px;
+  line-height: 1.4;
+}
+
+/* Each option block inside the panel */
+.wsa-sub-section { margin-bottom: 4px; }
+
+/* Short muted description above each form */
+.wsa-sub-opt-desc {
+  font-size: 12px;
+  color: var(--wsa-muted);
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+
+/* Horizontal rule between ICS and reminder sections */
+.wsa-sub-hr {
+  border: none;
+  border-top: 1px solid var(--wsa-border);
+  margin: 20px 0;
+}
+
+/* ICS option: email input + button on the same row */
+.wsa-sub-ics-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+.wsa-sub-ics-row .wsa-sub-input { flex: 1; min-width: 0; }
+.wsa-sub-ics-row .wsa-btn       { flex-shrink: 0; white-space: nowrap; }
+
+/* Reminder form: stacked inputs + full-width button */
+.wsa-sub-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+/* Full-width button helper */
+.wsa-sub-full { width: 100%; justify-content: center; }
+
+/* Shared input style */
+.wsa-sub-input {
+  padding: 7px 10px;
+  border: 1px solid var(--wsa-border);
+  border-radius: var(--wsa-radius);
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.wsa-sub-input.error { border-color: #dc2626; }
+
+/* Notification line below each form row */
+.wsa-sub-notif { font-size: 13px; min-height: 18px; margin-top: 2px; }
+.wsa-sub-ok    { color: #065f46; }
+.wsa-sub-err   { color: #991b1b; }
+
+/* Success confirmation box */
+.wsa-sub-done {
+  background: #d1fae5;
+  padding: 10px 12px;
+  border-radius: var(--wsa-radius);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Unsubscribe link shown after successful subscription */
+.wsa-sub-unsub-link {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--wsa-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.wsa-sub-unsub-link:hover { color: var(--wsa-text); }
+
+/* ── List view ───────────────────────────────────────────────────── */
+.wsa-list { padding: 4px 0; }
+.wsa-list-empty { color: var(--wsa-muted); padding: 32px 0; text-align: center; }
+
+.wsa-list-month-hdr { margin: 28px 0 6px; }
+.wsa-list-month-title {
+  /* Rendered as a <button> — reset defaults so it looks like a heading link */
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: #0C447C;
+  text-decoration: none;
+}
+.wsa-list-month-title:hover { text-decoration: underline; }
+.wsa-list-divider {
+  display: block;
+  border: none;
+  border-top: 1px solid #5e8ab4;
+  margin: 6px 0 0;
+}
+
+.wsa-list-row {
+  display: grid;
+  /* bar | date | dow | time | title | desc */
+  grid-template-columns: 4px 60px 28px 44px 1fr minmax(0,2fr);
+  align-items: baseline;
+  gap: 0 10px;
+  padding: 7px 6px;
+  border-radius: var(--wsa-radius);
+  cursor: pointer;
+  transition: background .12s;
+}
+.wsa-list-row:hover { background: #f3f6fa; }
+.wsa-list-past { opacity: .5; }
+
+.wsa-list-bar {
+  align-self: stretch;
+  border-radius: 2px;
+  min-width: 4px;
+}
+.wsa-list-date {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.wsa-list-dow {
+  font-size: 12px;
+  color: var(--wsa-muted);
+  text-transform: lowercase;
+}
+.wsa-list-time {
+  font-size: 12px;
+  color: var(--wsa-muted);
+  font-variant-numeric: tabular-nums;
+  min-width: 36px;
+}
+.wsa-list-title {
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wsa-list-desc {
+  font-size: 12px;
+  color: var(--wsa-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Bottom-sheet drag handle ────────────────────────────────────── */
+.wsa-sheet-handle {
+  width: 36px;
+  height: 4px;
+  background: #d1d5db;
+  border-radius: 2px;
+  margin: 10px auto 2px;
+  flex-shrink: 0;
+}
+
+/* ── Day bottom-sheet rows (mobile month-view day tap) ──────────── */
+.wsa-day-sheet-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--wsa-border);
+  cursor: pointer;
+  min-height: 44px;
+  box-sizing: border-box;
+  transition: background .1s;
+}
+.wsa-day-sheet-row:last-child { border-bottom: none; }
+.wsa-day-sheet-row:hover, .wsa-day-sheet-row:active { background: #f3f6fa; }
+.wsa-day-sheet-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.wsa-day-sheet-time {
+  font-size: 13px;
+  color: var(--wsa-muted);
+  min-width: 52px;
+  font-variant-numeric: tabular-nums;
+}
+.wsa-day-sheet-title { font-size: 15px; font-weight: 600; flex: 1; }
+
+/* ── Week mobile: single-column day sections ─────────────────────── */
+.wsa-week-mobile { display: flex; flex-direction: column; }
+.wsa-week-mobile-hdr {
+  padding: 9px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--wsa-muted);
+  background: #f9fafb;
+  border-top: 1px solid var(--wsa-border);
+  border-bottom: 1px solid var(--wsa-border);
+}
+.wsa-week-mobile-hdr.today { color: var(--wsa-today-ring); background: var(--wsa-today-bg); }
+.wsa-week-mobile-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--wsa-border);
+  cursor: pointer;
+  min-height: 44px;
+  box-sizing: border-box;
+  transition: background .1s;
+}
+.wsa-week-mobile-row:hover, .wsa-week-mobile-row:active { background: #f3f6fa; }
+.wsa-week-mobile-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.wsa-week-mobile-time {
+  font-size: 13px;
+  color: var(--wsa-muted);
+  min-width: 52px;
+  font-variant-numeric: tabular-nums;
+}
+.wsa-week-mobile-title { font-size: 15px; font-weight: 600; flex: 1; }
+.wsa-week-mobile-empty {
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--wsa-muted);
+  border-bottom: 1px solid var(--wsa-border);
+}
+
+/* ── Tablet (601–900px): 3-column year grid ──────────────────────── */
+@media (max-width: 900px) {
+  .wsa-year-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ── Mobile (≤ 600px) ────────────────────────────────────────────── */
+@media (max-width: 600px) {
+
+  /* Touch targets: minimum 44 × 44 px (Apple/Google HIG) */
+  .wsa-btn {
+    min-height: 44px;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  .wsa-btn-icon { padding: 10px; min-width: 44px; }
+
+  /* Prevent iOS auto-zoom on input focus (requires font-size ≥ 16px) */
+  .wsa-field input[type=text],
+  .wsa-field input[type=date],
+  .wsa-field select,
+  .wsa-field textarea,
+  .wsa-rsvp-form input {
+    font-size: 16px;
+    min-height: 44px;
+  }
+
+  /* ── Toolbar: stacked; view buttons become a full-width tab bar ── */
+  .wsa-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    margin-bottom: 8px;
+  }
+  .wsa-view-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border: 1px solid var(--wsa-border);
+    border-radius: var(--wsa-radius);
+    overflow: hidden;
+    gap: 0;
+    margin-bottom: 8px;
+  }
+  .wsa-view-tabs .wsa-btn {
+    border-radius: 0;
+    border: none;
+    border-right: 1px solid var(--wsa-border);
+    min-height: 44px;
+    padding: 8px 4px;
+    font-size: 13px;
+  }
+  .wsa-view-tabs .wsa-btn:last-child { border-right: none; }
+  .wsa-toolbar-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+  .wsa-toolbar-nav .wsa-heading {
+    min-width: 0;
+    flex: 1;
+    font-size: 15px;
+    text-align: center;
+  }
+  .wsa-toolbar-right { margin-left: 0; }
+
+  /* ── Month view: chips with truncated name; public blocks as cell tint ── */
+  .wsa-month-grid { font-size: 12px; }
+  .wsa-month-dow  { padding: 4px 2px; font-size: 11px; }
+  /* Cells are tall enough for day-number + 2 chips + "+N meer" label */
+  .wsa-day        { min-height: 82px; padding: 3px 2px; }
+  .wsa-day-num    { font-size: 11px; text-align: center; display: block; }
+  .wsa-day.today .wsa-day-num { margin: 0 auto; display: inline-flex; }
+  /* Desktop overlay band not used on mobile — JS applies .wsa-day-pub-mobile tint instead */
+  .wsa-public-block { display: none; }
+  /* Public text labels never show on mobile (tint alone is the indicator) */
+  .wsa-public-label { display: none; }
+
+  /* ── Year view: 2 columns, slightly smaller dots ─────────────────── */
+  .wsa-year-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .wsa-dot       { width: 4px; height: 4px; }
+  .wsa-mini-day  { min-height: 20px; }
+
+  /* ── Modal: full-width bottom sheet sliding up from screen edge ──── */
+  .wsa-modal-backdrop { padding-top: 0; align-items: flex-end; }
+  .wsa-modal {
+    max-width: 100%;
+    width: 100%;
+    max-height: 85vh;
+    border-radius: 16px 16px 0 0;
+    margin: 0;
+  }
+  .wsa-modal-header { padding: 12px 16px; }
+  .wsa-modal-body   { padding: 12px 16px; }
+  .wsa-modal-footer {
+    padding: 12px 16px;
+    gap: 6px;
+  }
+  /* Sluiten button: comfortably tappable */
+  .wsa-modal-footer > .wsa-btn { min-height: 40px; }
+  .wsa-modal-title { font-size: 16px; }
+
+  /* ── Edit modal: stacked field rows, full-width attachment button ── */
+  .wsa-field-row { flex-direction: column; gap: 8px; }
+  /* Attachment "Bestand toevoegen" button spans full width */
+  .wsa-field > .wsa-btn { width: 100%; margin-top: 4px; justify-content: center; }
+
+  /* Login chooser buttons: full-width on mobile (already 100% via .wsa-login-sso-btn) */
+  .wsa-login-sso-btn { font-size: 15px; padding: 13px 16px; }
+
+  /* Subscription inputs: full height for touch */
+  .wsa-sub-input { min-height: 44px; font-size: 15px; }
+
+  /* ICS row: stack on narrow screens */
+  .wsa-sub-ics-row { flex-direction: column; }
+  .wsa-sub-ics-row .wsa-btn { width: 100%; justify-content: center; }
+
+  /* ── List view: hide description column, ensure row tap height ───── */
+  .wsa-list-row {
+    grid-template-columns: 4px 56px 24px 36px 1fr;
+    min-height: 44px;
+    align-items: center;
+  }
+  .wsa-list-desc  { display: none; }
+  .wsa-list-date  { font-size: 14px; }
+  .wsa-list-title { font-size: 14px; }
+}

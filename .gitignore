@@ -1,0 +1,24 @@
+# macOS
+.DS_Store
+
+# Secrets — never commit
+wp-config.php
+.env
+.env.*
+
+# Dependencies & build output
+node_modules/
+vendor/
+dist/
+build/
+
+# Packaged plugin zips
+*.zip
+
+# Logs
+*.log
+
+# Editors
+.idea/
+.vscode/
+*.swp
